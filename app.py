@@ -40,7 +40,7 @@ def login():
     connection.close()
 
     if res and hashed_password == res[0]: message = "Successful Login!"
-    else: message = "Wrong ID or PW"
+    else: message = "Username or password is incorrect"
 
     return render_template('result.html', message=message)
 
