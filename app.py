@@ -41,7 +41,7 @@ def signup():
         if role == "Seller":
             return render_template('sellersignup.html', email= email, password = password1)
         if role == "HelpDesk":
-            return
+            return render_template('helpdesksignup.html', email= email, password = password1)
 
         # For now, just print it
         print(f"Email: {email}")
@@ -53,7 +53,7 @@ def signup():
 
 # Route to show the sellersignup page
 @app.route('/sellersignup', methods=['GET', 'POST'])
-def buyersignup():
+def sellersignup():
     if request.method == 'POST':
         # Get Form Data
         email = request.form['email']
@@ -116,7 +116,7 @@ def buyersignup():
 
 # Route to show the buyersignup page
 @app.route('/buyersignup', methods=['GET', 'POST'])
-def sellersignup():
+def buyersignup():
     if request.method == 'POST':
         # Get Form Data
         email = request.form['email']
@@ -186,6 +186,46 @@ def sellersignup():
 
     # If it's a GET request, just render the signup page
     return render_template('buyersignup.html')
+
+# Route to show the helpdesksignup page
+@app.route('/helpdesksignup', methods=['GET', 'POST'])
+def helpdesksignup():
+    if request.method == 'POST':
+        # Get Form Data
+        email = request.form['email']
+        password = request.form['password']
+        Position = request.form['Position']
+        admin_code = request.form['admin_code']
+
+        # Because helpdesk accounts can only be done with authorization 
+        # we need the correct admin code
+        if admin_code != "12345":
+            return render_template('helpdesksignup.html', email = email, password = password, message = "Admin Code is not correct")
+
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()
+
+        # Insert User
+        cursor.execute('''
+        INSERT INTO Users (email, password)
+        VALUES (?, ?)
+        ''', (email, hashlib.sha256(password.encode()).hexdigest()))
+        connection.commit()
+
+        # Insert Helpdesk
+        cursor.execute('''
+        INSERT INTO Helpdesk (email, Position)
+        VALUES (?, ?)
+        ''', (email, Position))
+        connection.commit()
+
+        connection.close()
+
+        # For now, just go to login
+        return render_template('index.html')
+
+    # If it's a GET request, just render the signup page
+    return render_template('helpdesksignup.html')
 
 # API for handling GET REQUEST for Login Page 
 # @app.route('/login', methods=['GET'])
