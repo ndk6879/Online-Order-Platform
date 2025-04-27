@@ -12,6 +12,10 @@ host = 'http://127.0.0.1:5000/'
 def index():
     return render_template('index.html')
 
+# load the sign up page
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
 
 
 # API for handling GET REQUEST for Login Page 
