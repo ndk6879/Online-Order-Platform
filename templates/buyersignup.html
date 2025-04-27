@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nittany Business</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: top;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input[type="text"], input[type="password"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 200px;
+        }
+        input[type="submit"], button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Create Buyer Account</h2>
+    
+    <!-- For showing messages -->
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+
+    <form method="POST" action="/buyersignup">
+        <!-- Store login information -->
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ email }}" readonly><br>
+        <label>Password:</label>
+        <input type="password" name="password" value="{{ password }}" readonly><br>
+
+        <!-- Buyer Information -->
+        
+        <label>Business Name:</label>
+        <input type="text" name="business_name" value="{{ business_name }}" required><br>
+        
+        <h3> Address </h3>
+        <label>Zipcode:</label>
+        <input type="text" name="zipcode" value="{{ zipcode }}" required><br>
+
+        <label>City:</label>
+        <input type="text" name="city" value="{{ city }}" required><br>
+    
+        <label>State:</label>
+        <input type="text" name="state" value="{{ state }}" required><br>
+        
+        <label>Street Number:</label>
+        <input type="text" name="street_num" value="{{ street_num }}" required><br>
+
+        <label>Street Name:</label>
+        <input type="text" name="street_name" value="{{ street_name }}" required><br>
+
+    <!-- Credit Card Information -->
+    <h3> Add a Credit Card (more can be added later) </h3>
+    <label>Credit Card Number:</label>
+    <input type="text" name="credit_card_num" value="{{ credit_card_num }}" required><br>
+
+    <label>Card Type:</label>
+    <select name="card_type" required>
+        <option value="Visa" {% if card_type == 'Visa' %}selected{% endif %}>Visa</option>
+        <option value="Master" {% if card_type == 'Master' %}selected{% endif %}>MasterCard</option>
+        <option value="American Express" {% if card_type == 'American Express' %}selected{% endif %}>American Express</option>
+        <option value="Discover" {% if card_type == 'Discover' %}selected{% endif %}>Discover</option>
+    </select><br>
+
+    <label>Expiration Month:</label>
+    <select name="expire_month" required>
+        <option value="01" {% if expire_month == '01' %}selected{% endif %}>January</option>
+        <option value="02" {% if expire_month == '02' %}selected{% endif %}>February</option>
+        <option value="03" {% if expire_month == '03' %}selected{% endif %}>March</option>
+        <option value="04" {% if expire_month == '04' %}selected{% endif %}>April</option>
+        <option value="05" {% if expire_month == '05' %}selected{% endif %}>May</option>
+        <option value="06" {% if expire_month == '06' %}selected{% endif %}>June</option>
+        <option value="07" {% if expire_month == '07' %}selected{% endif %}>July</option>
+        <option value="08" {% if expire_month == '08' %}selected{% endif %}>August</option>
+        <option value="09" {% if expire_month == '09' %}selected{% endif %}>September</option>
+        <option value="10" {% if expire_month == '10' %}selected{% endif %}>October</option>
+        <option value="11" {% if expire_month == '11' %}selected{% endif %}>November</option>
+        <option value="12" {% if expire_month == '12' %}selected{% endif %}>December</option>
+    </select><br>
+
+    <label>Expiration Year:</label>
+    <input type="text" name="expire_year" value="{{ expire_year }}" required><br>
+
+    <label>Security Code:</label>
+    <input type="text" name="security_code" value="{{ security_code }}" required><br>
+        
+    <input type="submit" value="Complete Sign Up">
+    </form>
+    <br>
+    <button onclick="window.location.href='/'">Go to Homepage</button>
+</body>
+</html>
