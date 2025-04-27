@@ -51,13 +51,75 @@ def signup():
     # If it's a GET request, just render the signup page
     return render_template('signup.html')
 
-# Route to show the signup page
-@app.route('/buyersignup', methods=['GET', 'POST'])
+# Route to show the sellersignup page
+@app.route('/sellersignup', methods=['GET', 'POST'])
 def buyersignup():
     if request.method == 'POST':
         # Get Form Data
         email = request.form['email']
-        print(email)
+        password = request.form['password']
+        business_name = request.form['business_name']
+        # Bank
+        bank_routing_number = request.form['bank_routing_number']
+        bank_account_number = request.form['bank_account_number']
+        # Address
+        zipcode = request.form['zipcode']
+        city = request.form['city']
+        state = request.form['state']
+        street_num = request.form['street_num']
+        street_name = request.form['street_name']
+
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()
+
+        # Add Zipcode
+        # If zipcode is not in the table then add it
+        cursor.execute("SELECT * FROM Zipcode WHERE zipcode = ?", (zipcode,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Zipcode (zipcode, city, state)
+            VALUES (?, ?, ?)
+            ''', (zipcode, city, state))
+        connection.commit()
+        
+        # Insert Address (address id is automatically generated)
+        cursor.execute('''
+        INSERT INTO Address (zipcode, street_num, street_name)
+        VALUES (?, ?, ?)
+        ''', (zipcode, street_num, street_name))
+        # gets inserted as the last row then we read the generated id
+        Business_Address_ID = cursor.lastrowid
+        connection.commit()
+
+        # Insert User
+        cursor.execute('''
+        INSERT INTO Users (email, password)
+        VALUES (?, ?)
+        ''', (email, hashlib.sha256(password.encode()).hexdigest()))
+        connection.commit()
+
+        # Insert Seller (Start with a balance of 0)
+        cursor.execute('''
+        INSERT INTO Sellers (email, business_name, Business_Address_ID, bank_routing_number, bank_account_number, balance)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', (email, business_name, Business_Address_ID, bank_routing_number, bank_account_number, 0))
+        connection.commit()
+
+        connection.close()
+
+        # For now, just go to login
+        return render_template('index.html')
+
+    # If it's a GET request, just render the signup page
+    return render_template('sellersignup.html')
+
+# Route to show the buyersignup page
+@app.route('/buyersignup', methods=['GET', 'POST'])
+def sellersignup():
+    if request.method == 'POST':
+        # Get Form Data
+        email = request.form['email']
         password = request.form['password']
         business_name = request.form['business_name']
         # Address
@@ -119,11 +181,11 @@ def buyersignup():
         connection.commit()
         connection.close()
 
-        # For now, just print it
-        print("Created Buyer")
+        # For now, just go to login
+        return render_template('index.html')
 
     # If it's a GET request, just render the signup page
-    return render_template('signup.html')
+    return render_template('buyersignup.html')
 
 # API for handling GET REQUEST for Login Page 
 # @app.route('/login', methods=['GET'])
