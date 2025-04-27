@@ -83,14 +83,18 @@ def sellersignup():
             ''', (zipcode, city, state))
         connection.commit()
         
-        # Insert Address (address id is automatically generated)
-        cursor.execute('''
-        INSERT INTO Address (zipcode, street_num, street_name)
-        VALUES (?, ?, ?)
-        ''', (zipcode, street_num, street_name))
-        # gets inserted as the last row then we read the generated id
-        Business_Address_ID = cursor.lastrowid
-        connection.commit()
+        # Insert Address
+        # Create address id
+        Business_Address_ID = hashlib.sha256((zipcode+street_num+street_name).encode()).hexdigest()
+        # If address_id is not in the table then add it
+        cursor.execute("SELECT * FROM Address WHERE address_id = ?", (Business_Address_ID,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Address (address_id, zipcode, street_num, street_name)
+            VALUES (?, ?, ?, ?)
+            ''', (Business_Address_ID, zipcode, street_num, street_name))
+            connection.commit()
 
         # Insert User
         cursor.execute('''
@@ -227,10 +231,125 @@ def helpdesksignup():
     # If it's a GET request, just render the signup page
     return render_template('helpdesksignup.html')
 
-# API for handling GET REQUEST for Login Page 
-# @app.route('/login', methods=['GET'])
-# def login_page():
-#     return render_template('loginPage.html')
+
+@app.route('/editaccountinfo', methods=['GET', 'POST'])
+def editaccountinfo():
+    if request.method == 'POST':
+        email = request.form['email']
+        # Check what kind of user they are
+        print(email)
+        return showselleraccountinfo(email)
+    if request.method == 'GET':
+        return render_template("result.html")
+
+
+def showselleraccountinfo(email):
+    print("showselleraccountinfo")
+    # Open connection
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+
+    # Query
+    cursor.execute('''
+    SELECT 
+        s.email,
+        s.business_name,
+        s.bank_routing_number,
+        s.bank_account_number,
+        a.zipcode,
+        z.city,
+        z.state,
+        a.street_num,
+        a.street_name
+    FROM Sellers s
+    JOIN Address a ON s.Business_Address_ID = a.address_id
+    JOIN Zipcode z ON a.zipcode = z.zipcode
+    WHERE s.email = ?
+    ''', (email,))
+
+    # Fetch the result
+    seller_info = cursor.fetchone()
+
+    connection.close()
+
+    # unpack the data
+    if seller_info:
+        (email, business_name, bank_routing_number, bank_account_number, 
+        zipcode, city, state, street_num, street_name) = seller_info
+    else:
+        # Handle case where seller not found
+        print("Seller not found.")
+        return
+    
+    #load page with information
+    return render_template('editselleraccount.html',
+                           email = email,
+                           business_name = business_name,
+                           bank_routing_number = bank_routing_number,
+                           bank_account_number = bank_account_number,
+                           zipcode = zipcode,
+                           city = city,
+                           state = state,
+                           street_num = street_num,
+                           street_name = street_name,
+                           )
+
+@app.route('/editselleraccount', methods=['Get', 'POST'])
+def editselleraccount():
+    if request.method == 'POST':
+        # Get Form Data
+        email = request.form['email']
+        business_name = request.form['business_name']
+        # Bank
+        bank_routing_number = request.form['bank_routing_number']
+        bank_account_number = request.form['bank_account_number']
+        # Address
+        zipcode = request.form['zipcode']
+        city = request.form['city']
+        state = request.form['state']
+        street_num = request.form['street_num']
+        street_name = request.form['street_name']
+
+        # Now update information
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()    
+
+        # Add Zipcode
+        # If zipcode is not in the table then add it
+        cursor.execute("SELECT * FROM Zipcode WHERE zipcode = ?", (zipcode,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Zipcode (zipcode, city, state)
+            VALUES (?, ?, ?)
+            ''', (zipcode, city, state))
+        connection.commit()
+
+        # First, find the seller's Business_Address_ID
+        Business_Address_ID = hashlib.sha256((zipcode+street_num+street_name).encode()).hexdigest()
+        # If address_id is not in the table then add it
+        cursor.execute("SELECT * FROM Address WHERE address_id = ?", (Business_Address_ID,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Address (address_id, zipcode, street_num, street_name)
+            VALUES (?, ?, ?, ?)
+            ''', (Business_Address_ID, zipcode, street_num, street_name))
+            connection.commit()
+    
+        # Update Sellers table
+        cursor.execute('''
+        UPDATE Sellers
+        SET business_name = ?, bank_routing_number = ?, bank_account_number = ?, Business_Address_ID = ?
+        WHERE email = ?
+        ''', (business_name, bank_routing_number, bank_account_number, Business_Address_ID, email))
+        connection.commit()
+
+        connection.close()
+
+        return showselleraccountinfo(email)
+    # If it's a GET request, just render the page
+    return render_template('editselleraccount.html')
 
 # API for handling POST Request for Login functionality
 @app.route('/login', methods=['POST'])
@@ -255,7 +374,7 @@ def login():
     if res and hashed_password == res[0]: message = "Successful Login!"
     else: message = "Username or password is incorrect"
 
-    return render_template('result.html', message=message)
+    return render_template('result.html', message=message, email = email)
 
 
 if __name__ == "__main__":

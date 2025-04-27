@@ -4,5 +4,14 @@
 </head>
 <body>
     <h2>{{ message }}</h2>
-</body>
+        <form method="POST" action="/editaccountinfo">
+            <!-- Store login information -->
+            <label>Logged in as:</label>
+            <input type="email" name="email" value="{{ email }}" readonly><br>
+        <input type="submit" value="Edit Account Infomation">
+        </form>
+    </body>
+
+
+
 </html>

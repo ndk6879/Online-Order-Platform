@@ -12,12 +12,12 @@ cursor.execute('''
 CREATE TABLE IF NOT EXISTS Sellers (
     email TEXT PRIMARY KEY,
     business_name TEXT,
-    Business_address_id TEXT,
+    Business_Address_ID TEXT,
     bank_routing_number TEXT,
     bank_account_number TEXT,
     balance INT,
     FOREIGN KEY (email) REFERENCES Users(email) ON DELETE CASCADE,
-    FOREIGN KEY (Business_address_id) REFERENCES Address(address_id)
+    FOREIGN KEY (Business_Address_ID) REFERENCES Address(address_id)
 )
 ''')
 
