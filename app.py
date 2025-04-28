@@ -112,8 +112,8 @@ def sellersignup():
 
         connection.close()
 
-        # For now, just go to login
-        return render_template('index.html')
+        # then login
+        return render_template('result.html', email = email)
 
     # If it's a GET request, just render the signup page
     return render_template('sellersignup.html')
@@ -189,8 +189,8 @@ def buyersignup():
         connection.commit()
         connection.close()
 
-        # For now, just go to login
-        return render_template('index.html')
+        # then login
+        return render_template('result.html', email = email)
 
     # If it's a GET request, just render the signup page
     return render_template('buyersignup.html')
@@ -229,8 +229,8 @@ def helpdesksignup():
 
         connection.close()
 
-        # For now, just go to login
-        return render_template('index.html')
+        # then login
+        return render_template('result.html', email = email)
 
     # If it's a GET request, just render the signup page
     return render_template('helpdesksignup.html')
@@ -247,7 +247,7 @@ def get_account_type(email):
         return 'Buyer'
 
     # Check Seller table
-    cursor.execute('SELECT 1 FROM Seller WHERE email = ?', (email,))
+    cursor.execute('SELECT 1 FROM Sellers WHERE email = ?', (email,))
     if cursor.fetchone():
         connection.close()
         return 'Seller'
@@ -381,8 +381,57 @@ def showselleraccountinfo(email):
 def showhelpdeskaccountinfo(email):
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
+    
+    # Query
+    cursor.execute('''
+    SELECT 
+        email,
+        Position
+    FROM Helpdesk
+    WHERE email = ?
+    ''', (email,))
+    
+    # Fetch the result
+    helpdesk_info = cursor.fetchone()
+
     connection.close()
-    return
+
+    # unpack the data
+    if helpdesk_info:
+        (email, Position) = helpdesk_info
+    else:
+        # Handle case where seller not found
+        print("Helpdesk member not found.")
+        return
+    
+    #load page with information
+    return render_template('edithelpdeskaccount.html', email = email, Position = Position)
+
+@app.route('/edithelpdeskaccount', methods=['Get', 'POST'])
+def edithelpdeskccount():
+    if request.method == 'POST':
+        # Get Form Data
+        email = request.form['email']
+        Position = request.form['Position']
+
+        # Now update information
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()    
+    
+        # Update Helpdesk table
+        cursor.execute('''
+        UPDATE Helpdesk
+        SET Position = ?
+        WHERE email = ?
+        ''', (Position, email))
+        connection.commit()
+
+        connection.close()
+
+        return showhelpdeskaccountinfo(email)
+    # If it's a GET request, just render the page
+    return render_template('edithelpdeskaccount.html')
+
 
 @app.route('/editselleraccount', methods=['Get', 'POST'])
 def editselleraccount():
