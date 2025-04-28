@@ -11,10 +11,6 @@ host = 'http://127.0.0.1:5000/'
 def index():
     return render_template('index.html')
 
-# load the sign up page
-@app.route('/signup')
-def signup():
-    return render_template('signup.html')
 
 
 # API for handling GET REQUEST for Login Page 
@@ -57,6 +53,8 @@ def login():
 # API for handling and showing categories, subcategories, and products
 @app.route('/categories/<parentName>')
 def Category(parentName):
+
+    #connect to our Project431 database with cursor
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
 
@@ -99,6 +97,8 @@ def MainCategoryWithRoot():
 # (OK) API to display page to show the product listings
 @app.route('/products')
 def ProductList():
+
+    #connect to our Project431 database with cursor and take products
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
     cursor.execute("SELECT Listing_ID,Product_Title,Category,Quantity,Product_Price,Status FROM Product_Listings")
@@ -111,6 +111,8 @@ def ProductList():
 #3. API to add product 
 @app.route('/products/add', methods=['GET', 'POST'])
 def AddProduct():
+    
+    #connect to our Project431 database with cursor
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
 
@@ -393,7 +395,7 @@ def register():
 
 
 
- #git change
+
 
 #8. User Profile Update
 # API to show and update user email and password
