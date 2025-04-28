@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- OK -->
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        button {
+            color: white;
+            background-color: #396fbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <h2 style = "text-align: center;">Add Product</h2>
+    <form method="POST">
+        <div class = "container">
+            <div>
+                Title: <input type="text" name="title">
+            </div><br>
+
+            <div>
+                Category: <input type="text" name="category">
+            </div><br>
+
+            <div>
+                Quantity: <input type="number" name="quantity">
+            </div><br>
+
+            <div>
+                Price: <input type="number" name="price">
+            </div><br>
+
+            <div>
+                Status:
+                <select name="status" required>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                    <option value="2">Sold</option>
+                </select><br><br>
+            </div><br>
+
+            <button type="submit">Add Product</button>
+        </form>
+    </div>
+
+</body>
+</html>

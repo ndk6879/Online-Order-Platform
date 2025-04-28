@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        button {
+            color: white;
+            background-color: #396fbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <h1 style="text-align:center;">Leave a Review</h1>
+    <form action="/reviews/add/{{ ListingID }}" method="post">
+        <div class = "container">
+            <div>
+                (1-5) Rating <br> <input type="number" name="rating" min="1" max="5" required>
+            </div><br>
+
+            <div>
+                Description <br> <textarea name="description" rows="4" cols="30" required></textarea><br><br>
+            </div><br>
+
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</body>
+</html>

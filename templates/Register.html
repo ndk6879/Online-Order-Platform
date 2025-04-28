@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        button {
+            color: white;
+            background-color: #396fbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <h1 style="text-align: center;" >Register Page</h1>
+    <form action="/register" method="post">
+        <div class = "container">
+            <div>
+                Email: <input type="email" name="email" required>
+            </div><br>
+
+            <div>
+                Password: <input type="password" name="password" required>
+            </div><br>
+            
+            <button type="submit">Register</button>
+        </div>
+    </form>
+    
+</body>
+</html>

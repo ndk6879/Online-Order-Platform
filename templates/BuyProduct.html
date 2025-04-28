@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    
     <head>
         <style>
             body {
@@ -24,17 +25,13 @@
 <body>
     {% include 'header.html' %}
 
-    <h2 style="text-align: center;" >Nittany Business</h2>
-    <form method="POST" action="/login">
-        <div class="container" >
-            <label>Email:</label> <input type="text" name="email"><br>
-
-            <label>Password:</label> <input type="password" name="password"><br>
-
-            <button type="submit">Login</button>
+    <h2 style = "text-align: center;">Buy Product</h2>
+    <form method="POST">
+        <div class = "container">
+            Quantity: <input type="number" name="quantity" min="1" required><br>
+            <button type="submit">Purchase</button>
         </div>
     </form>
-    <br>
-    <button onclick="window.location.href='/signup'">Create an Account</button>
+
 </body>
 </html>

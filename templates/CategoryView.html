@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- OK! -->
+<head>
+    <style>
+
+        body {
+            margin: 0;
+        }
+        a {
+            text-decoration: none;
+        }
+        
+        ul {
+            list-style-type: none;
+        }
+        
+        .container {
+            text-align: center;
+        }
+    </style>
+</head>
+<html>
+<body>
+    {% include 'header.html' %}
+
+    <div class = "container">
+
+        <h3>This is {{ parent }} Category</h3>
+
+        <h4>Belows are Subcategories</h4>
+        <ul>
+            {% for subctg in subcategories %}
+                <li><a href="/categories/{{ subctg }}">{{ subctg }}</a></li>
+            {% endfor %}
+        </ul>
+
+        {% if  products %}
+            <h3>Products of {{ parent }}</h3>
+        {% endif %}
+        <ul>
+            {% for product in products %}
+                <li>{{ product }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

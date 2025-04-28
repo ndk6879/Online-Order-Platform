@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        button {
+            color: white;
+            background-color: #396fbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <h1 style="text-align: center;" >Search Results - "{{ keyword }}"</h1>
+
+        <ul style="text-align: center; list-style-type: none;" >
+        {% for lid, title, desc, price in resultAll %}
+            <li>{{ title}} | {{desc}} | {{price}}</li><br>
+        {% endfor %}
+        </ul>
+        
+</body>
+</html>

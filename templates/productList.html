@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!-- OK -->
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                text-align: center;
+            }
+
+            table {
+                display: flex;
+                text-align: center;
+                margin: auto 0;
+
+
+            }
+
+            tr, th, td {
+                border: 1px solid black;
+                padding: 5px;
+            }
+
+            .container {
+                text-align: center;
+                margin: auto 0;
+            }
+
+            button {
+                color: white;
+                background-color: #396fbb;
+                border-radius: 15px;
+                padding: 15px;
+                margin: 10px;
+            }
+
+        </style>
+    </head>
+<body>
+    
+
+    {% include 'header.html' %}
+    
+    <a href="/products/add"><button>Add New Product</button></a>
+    <div class = "container">
+        <table>
+            <tr>
+                <th>Listing ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Update</th>
+            </tr>
+            {% for product in Allproduct %}
+            <tr>
+                <td>{{product[0]}}</td>
+                <td>{{product[1]}}</td>
+                <td>{{product[2]}}</td>
+                <td>{{product[3]}}</td>
+                <td>{{product[4]}}</td>
+                <td>{{product[5]}}</td>
+                <td>
+                    <a href="/products/edit/{{ product[0] }}">Edit</a>
+                    | <a href="/products/delete/{{ product[0] }}">Delete</a>
+                    | <a href="/products/buy/{{ product[0] }}">Buy</a>
+
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+</body>
+</html>

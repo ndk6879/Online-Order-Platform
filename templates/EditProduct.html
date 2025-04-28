@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- ok -->
+<html>
+    
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        button {
+            color: white;
+            background-color: #396fbb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <h2 style = "text-align: center;">Edit Product</h2>
+    <form method="POST">
+        <div class = "container">
+            <div>
+                Title: <input type="text" name="title" value="{{ product[0] }}">
+            </div><br>
+
+            <div>
+                Category: <input type="text" name="category" value="{{ product[1] }}">
+            </div><br>
+
+            <div>
+                Quantity: <input type="number" name="quantity" value="{{ product[2] }}">
+            </div><br>
+
+            <div>
+                Price: <input type="number" name="price" value="{{ product[3] }}">
+            </div><br>
+
+            
+            <div>
+                Status:
+                <select name="status" required>
+                    <option value="1" {% if product[4] == 1 %}selected{% endif %}>Active</option>
+                    <option value="0" {% if product[4] == 0 %}selected{% endif %}>Inactive</option>
+                    <option value="2" {% if product[4] == 2 %}selected{% endif %}>Sold</option>
+                </select>
+            </div>
+            <button type="submit">Update Product</button>
+
+        </div>
+        
+
+    </form>
+
+</body>
+</html>
