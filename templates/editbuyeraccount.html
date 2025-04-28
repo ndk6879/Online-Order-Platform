@@ -85,6 +85,11 @@
         <input type="submit" value="Manage Credit Cards">
     </form>
     <br>
+    <form method="POST" action="/openchangepassword">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="submit" value="Change Password">
+    </form>
+    <br>
     <button onclick="window.location.href='/'">Go to Homepage</button>
 </body>
 </html>

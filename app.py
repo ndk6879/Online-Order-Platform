@@ -43,10 +43,6 @@ def signup():
         if role == "HelpDesk":
             return render_template('helpdesksignup.html', email= email, password = password1)
 
-        # For now, just print it
-        print(f"Email: {email}")
-        print(f"Password: {password1}")
-        print(f"Role selected: {role}")
 
     # If it's a GET request, just render the signup page
     return render_template('signup.html')
@@ -278,7 +274,6 @@ def editaccountinfo():
         return render_template("result.html")
 
 def showbuyeraccountinfo(email):
-    print("show buyer account info")
     # Open connection
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
@@ -326,7 +321,6 @@ def showbuyeraccountinfo(email):
 
 
 def showselleraccountinfo(email):
-    print("showselleraccountinfo")
     # Open connection
     connection = sqlite3.connect('db/Project431.db')
     cursor = connection.cursor()
@@ -623,13 +617,51 @@ def managecreditcards():
 
     return render_template('managecreditcards.html', email=email, message=message, credit_cards=credit_cards)
 
+@app.route('/openchangepassword', methods=['POST'])
+def open_change_password():
+    email = request.form['email']
+    return render_template("changepassword.html", email = email)
+
+@app.route('/changepassword', methods=['GET', 'POST'])
+def changepassword():
+    message = None
+    email = request.form['email']
+    if request.method == 'POST':
+        
+        password1 = request.form['password1']
+        password2 = request.form['password2']
+
+        # Check that the two passwords match
+        if password1 != password2:
+            return render_template('changepassword.html', email = email, message="Passwords do not match")
+
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()
+
+        # Update the password
+        hashed_pass = hashlib.sha256(password1.encode()).hexdigest()
+        cursor.execute('''
+            UPDATE Users
+            SET password = ?
+            WHERE email = ?
+        ''', (hashed_pass, email))
+        # Save changes and close connection
+        connection.commit()
+        connection.close()
+
+        return render_template('changepassword.html', email = email, message="You password has been successfully updated")
+    
+    return render_template("changepassword.html", email = email)
+
+
+
+    
 
 # API for handling POST Request for Login functionality
 @app.route('/login', methods=['POST'])
 def login():
     email, password = request.form['email'], request.form['password']
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-
     # DB conection and querying
     
     #Test ID & PW
@@ -643,7 +675,6 @@ def login():
     cursor.execute("SELECT password FROM Users WHERE email = ?", (email,))
     res = cursor.fetchone()
     connection.close()
-
     if res and hashed_password == res[0]: message = "Successful Login!"
     else: message = "Username or password is incorrect"
 
