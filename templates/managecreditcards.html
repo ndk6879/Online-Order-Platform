@@ -43,43 +43,20 @@
     </style>
 </head>
 <body>
-    <h2>Create Buyer Account</h2>
+    <h2>Manage Credit Cards</h2>
     
     <!-- For showing messages -->
     {% if message %}
         <p style="color: red;">{{ message }}</p>
     {% endif %}
 
-    <form method="POST" action="/buyersignup">
+    <form method="POST" action="/managecreditcards">
         <!-- Store login information -->
-        <label>Email:</label>
+        <label>Logged in as:</label>
         <input type="email" name="email" value="{{ email }}" readonly><br>
-        <label>Password:</label>
-        <input type="password" name="password" value="{{ password }}" readonly><br>
-
-        <!-- Buyer Information -->
-        
-        <label>Business Name:</label>
-        <input type="text" name="business_name" value="{{ business_name }}" required><br>
-        
-        <h3> Address </h3>
-        <label>Zipcode:</label>
-        <input type="text" name="zipcode" value="{{ zipcode }}" required><br>
-
-        <label>City:</label>
-        <input type="text" name="city" value="{{ city }}" required><br>
-    
-        <label>State:</label>
-        <input type="text" name="state" value="{{ state }}" required><br>
-        
-        <label>Street Number:</label>
-        <input type="text" name="street_num" value="{{ street_num }}" required><br>
-
-        <label>Street Name:</label>
-        <input type="text" name="street_name" value="{{ street_name }}" required><br>
 
     <!-- Credit Card Information -->
-    <h3> Add a Credit Card (more can be added later) </h3>
+    <h3> Add a Credit Card </h3>
     <label>Credit Card Number:</label>
     <input type="text" name="credit_card_num" value="{{ credit_card_num }}" required><br>
 
@@ -113,8 +90,42 @@
     <label>Security Code:</label>
     <input type="text" name="security_code" value="{{ security_code }}" required><br>
         
-    <input type="submit" value="Complete Sign Up">
+    <input type="submit" value="Add Card">
     </form>
+    <br>
+    <h3>Your Credit Cards</h3>
+
+    {% if credit_cards %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Card Number</th>
+                <th>Card Type</th>
+                <th>Expiration</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for card in credit_cards %}
+            <tr>
+                <td>{{ card.credit_card_num }}</td>
+                <td>{{ card.card_type }}</td>
+                <td>{{ card.expire_month }}/{{ card.expire_year }}</td>
+                <td>
+                    <form method="POST" action="/deletecreditcard">
+                        <input type="hidden" name="credit_card_num" value="{{ card.credit_card_num }}">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <input type="submit" value="Remove" onclick="return confirm('Are you sure you want to delete this card?');">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No credit cards found.</p>
+    {% endif %}
+
     <button onclick="window.location.href='/'">Go to Homepage</button>
 </body>
 </html>

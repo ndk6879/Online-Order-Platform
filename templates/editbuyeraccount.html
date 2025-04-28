@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nittany Business</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: top;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input[type="text"], input[type="password"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 200px;
+        }
+        input[type="submit"], button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Buyer Account</h2>
+    
+    <!-- For showing messages -->
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+
+    <form method="POST" action="/editbuyeraccount">
+        <!-- Store login information -->
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ email }}" readonly><br>
+
+        <!-- Buyer Information -->
+        
+        <label>Business Name:</label>
+        <input type="text" name="business_name" value="{{ business_name }}" required><br>
+        
+        <h3> Address </h3>
+        <label>Zipcode:</label>
+        <input type="text" name="zipcode" value="{{ zipcode }}" required><br>
+
+        <label>City:</label>
+        <input type="text" name="city" value="{{ city }}" required><br>
+    
+        <label>State:</label>
+        <input type="text" name="state" value="{{ state }}" required><br>
+        
+        <label>Street Number:</label>
+        <input type="text" name="street_num" value="{{ street_num }}" required><br>
+
+        <label>Street Name:</label>
+        <input type="text" name="street_name" value="{{ street_name }}" required><br>
+
+    <input type="submit" value="Update Information">
+    </form>
+    
+    <br>
+    <form method="POST" action="/openmanagecreditcards">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="submit" value="Manage Credit Cards">
+    </form>
+    <br>
+    <button onclick="window.location.href='/'">Go to Homepage</button>
+</body>
+</html>

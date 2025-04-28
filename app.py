@@ -153,14 +153,18 @@ def buyersignup():
             ''', (zipcode, city, state))
         connection.commit()
         
-        # Insert Address (address id is automatically generated)
-        cursor.execute('''
-        INSERT INTO Address (zipcode, street_num, street_name)
-        VALUES (?, ?, ?)
-        ''', (zipcode, street_num, street_name))
-        # gets inserted as the last row then we read the generated id
-        address_id = cursor.lastrowid
-        connection.commit()
+        # Insert Address
+        # Create address id
+        address_id = hashlib.sha256((zipcode+street_num+street_name).encode()).hexdigest()
+        # If address_id is not in the table then add it
+        cursor.execute("SELECT * FROM Address WHERE address_id = ?", (address_id,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Address (address_id, zipcode, street_num, street_name)
+            VALUES (?, ?, ?, ?)
+            ''', (address_id, zipcode, street_num, street_name))
+            connection.commit()
 
         # Insert User
         cursor.execute('''
@@ -232,15 +236,93 @@ def helpdesksignup():
     return render_template('helpdesksignup.html')
 
 
+def get_account_type(email):
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+
+    # Check Buyer table
+    cursor.execute('SELECT 1 FROM Buyer WHERE email = ?', (email,))
+    if cursor.fetchone():
+        connection.close()
+        return 'Buyer'
+
+    # Check Seller table
+    cursor.execute('SELECT 1 FROM Seller WHERE email = ?', (email,))
+    if cursor.fetchone():
+        connection.close()
+        return 'Seller'
+
+    # Check Helpdesk table
+    cursor.execute('SELECT 1 FROM Helpdesk WHERE email = ?', (email,))
+    if cursor.fetchone():
+        connection.close()
+        return 'Helpdesk'
+
+    # If email is not found
+    connection.close()
+    return None
+
 @app.route('/editaccountinfo', methods=['GET', 'POST'])
 def editaccountinfo():
     if request.method == 'POST':
         email = request.form['email']
         # Check what kind of user they are
-        print(email)
-        return showselleraccountinfo(email)
+        account_type = get_account_type(email)
+        if account_type == "Buyer":
+            return showbuyeraccountinfo(email)
+        if account_type == "Seller":
+            return showselleraccountinfo(email)
+        if account_type == "Helpdesk":
+            return showhelpdeskaccountinfo(email)
     if request.method == 'GET':
         return render_template("result.html")
+
+def showbuyeraccountinfo(email):
+    print("show buyer account info")
+    # Open connection
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+
+    # Query
+    cursor.execute('''
+    SELECT 
+        b.email,
+        b.business_name,
+        a.zipcode,
+        z.city,
+        z.state,
+        a.street_num,
+        a.street_name
+    FROM Buyer b
+    JOIN Address a ON b.buyer_address_id = a.address_id
+    JOIN Zipcode z ON a.zipcode = z.zipcode
+    WHERE b.email = ?
+    ''', (email,))
+
+    # Fetch the result
+    buyer_info = cursor.fetchone()
+
+    connection.close()
+
+    # unpack the data
+    if buyer_info:
+        (email, business_name, 
+        zipcode, city, state, street_num, street_name) = buyer_info
+    else:
+        # Handle case where seller not found
+        print("Seller not found.")
+        return
+
+    #load page with information
+    return render_template('editbuyeraccount.html',
+                           email = email,
+                           business_name = business_name,
+                           zipcode = zipcode,
+                           city = city,
+                           state = state,
+                           street_num = street_num,
+                           street_name = street_name,
+                           )
 
 
 def showselleraccountinfo(email):
@@ -266,6 +348,8 @@ def showselleraccountinfo(email):
     JOIN Zipcode z ON a.zipcode = z.zipcode
     WHERE s.email = ?
     ''', (email,))
+
+
 
     # Fetch the result
     seller_info = cursor.fetchone()
@@ -293,6 +377,12 @@ def showselleraccountinfo(email):
                            street_num = street_num,
                            street_name = street_name,
                            )
+
+def showhelpdeskaccountinfo(email):
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+    connection.close()
+    return
 
 @app.route('/editselleraccount', methods=['Get', 'POST'])
 def editselleraccount():
@@ -350,6 +440,140 @@ def editselleraccount():
         return showselleraccountinfo(email)
     # If it's a GET request, just render the page
     return render_template('editselleraccount.html')
+
+
+@app.route('/editbuyeraccount', methods=['Get', 'POST'])
+def editbuyeraccount():
+    if request.method == 'POST':
+        # Get Form Data
+        email = request.form['email']
+        business_name = request.form['business_name']
+        # Address
+        zipcode = request.form['zipcode']
+        city = request.form['city']
+        state = request.form['state']
+        street_num = request.form['street_num']
+        street_name = request.form['street_name']
+
+        # Now update information
+        connection = sqlite3.connect('db/Project431.db')
+        cursor = connection.cursor()    
+
+        # Add Zipcode
+        # If zipcode is not in the table then add it
+        cursor.execute("SELECT * FROM Zipcode WHERE zipcode = ?", (zipcode,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Zipcode (zipcode, city, state)
+            VALUES (?, ?, ?)
+            ''', (zipcode, city, state))
+        connection.commit()
+        
+        # Insert Address
+        # Create address id
+        address_id = hashlib.sha256((zipcode+street_num+street_name).encode()).hexdigest()
+        # If address_id is not in the table then add it
+        cursor.execute("SELECT * FROM Address WHERE address_id = ?", (address_id,))
+        result = cursor.fetchone()
+        if result is None:
+            cursor.execute('''
+            INSERT INTO Address (address_id, zipcode, street_num, street_name)
+            VALUES (?, ?, ?, ?)
+            ''', (address_id, zipcode, street_num, street_name))
+            connection.commit()
+    
+        # Update Sellers table
+        cursor.execute('''
+        UPDATE Buyer
+        SET business_name = ?, buyer_address_id = ?
+        WHERE email = ?
+        ''', (business_name, address_id, email))
+        connection.commit()
+
+        connection.close()
+
+        return showbuyeraccountinfo(email)
+    # If it's a GET request, just render the page
+    return render_template('editbuyeraccount.html')
+
+@app.route('/openmanagecreditcards', methods=['POST'])
+def open_manage_credit_cards():
+    # Called on the edit buyer account when the button for manage credit cards is clicked
+    email = request.form['email']
+    return render_template('managecreditcards.html', email=email, credit_cards=fetch_credit_cards(email))
+
+@app.route('/deletecreditcard', methods=['POST'])
+def delete_credit_card():
+    email = request.form['email']
+    credit_card_num = request.form['credit_card_num']
+
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+
+    # Check how many cards the user has
+    cursor.execute('SELECT COUNT(*) FROM Credit_Cards WHERE owner_email = ?', (email,))
+    card_count = cursor.fetchone()[0]
+
+    if card_count <= 1:
+        # This is the only card, don't delete it
+        connection.close()
+        message = "Cannot delete the only credit card on your account."
+        return render_template('managecreditcards.html', email=email, message=message, credit_cards=fetch_credit_cards(email))
+    else:
+        # Safe to delete
+        cursor.execute('DELETE FROM Credit_Cards WHERE credit_card_num = ? AND owner_email = ?', (credit_card_num, email))
+        connection.commit()
+        connection.close()
+        message = "Card was deleted"
+        return render_template('managecreditcards.html', email=email, message=message, credit_cards=fetch_credit_cards(email))
+
+def fetch_credit_cards(email):
+    # Returns the list of credit cards on the account with the email
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+    
+    # Fetch cards from the database
+    cursor.execute('SELECT credit_card_num, card_type, expire_month, expire_year FROM Credit_Cards WHERE owner_email = ?', (email,))
+    credit_cards = [
+        dict(credit_card_num=row[0], card_type=row[1], expire_month=row[2], expire_year=row[3])
+        for row in cursor.fetchall()
+    ]
+
+    return credit_cards
+
+@app.route('/managecreditcards', methods=['GET', 'POST'])
+def managecreditcards():
+    email = request.form['email']
+    message = None
+
+    connection = sqlite3.connect('db/Project431.db')
+    cursor = connection.cursor()
+
+    if request.method == 'POST':
+        
+        # Credit Card Information
+        credit_card_num = request.form['credit_card_num']
+        card_type = request.form['card_type']
+        expire_month = request.form['expire_month']
+        expire_year = request.form['expire_year']
+        security_code = request.form['security_code']
+
+        # Insert Credit Card
+        cursor.execute('''
+        INSERT INTO Credit_Cards (credit_card_num, card_type, expire_month, 
+                       expire_year, security_code, owner_email)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', (credit_card_num, card_type, expire_month, expire_year, security_code, email))
+        connection.commit()
+        message = "Credit Card was added to your account"
+
+    connection.close()
+    # Fetch cards from the database
+    credit_cards = fetch_credit_cards(email)
+
+    return render_template('managecreditcards.html', email=email, message=message, credit_cards=credit_cards)
+
 
 # API for handling POST Request for Login functionality
 @app.route('/login', methods=['POST'])
